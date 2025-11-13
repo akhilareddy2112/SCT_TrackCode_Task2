@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+    <style>
+        .stopwatch {
+            width: 300px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        .display {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .controls button {
+            width: 80px;
+            height: 30px;
+            margin: 0 10px;
+        }
+
+        .laps {
+            margin-top: 20px;
+        }
+
+        .lap {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="stopwatch">
+        <div class="display">00:00:00</div>
+        <div class="controls">
+            <button id="start">Start</button>
+            <button id="pause" disabled>Pause</button>
+            <button id="reset" disabled>Reset</button>
+            <button id="lap" disabled>Lap</button>
+        </div>
+        <div class="laps"></div>
+    </div>
+
+    <script>
+        let startTime = 0;
+        let elapsedTime = 0;
+        let timerId = null;
+        let lapNumber = 1;
+
+        const display = document.querySelector('.display');
+        const startButton = document.getElementById('start');
+        const pauseButton = document.getElementById('pause');
+        const resetButton = document.getElementById('reset');
+        const lapButton = document.getElementById('lap');
+        const lapsDiv = document.querySelector('.laps');
+
+        startButton.addEventListener('click', start);
+        pauseButton.addEventListener('click', pause);
+        resetButton.addEventListener('click', reset);
+        lapButton.addEventListener('click', lap);
+
+        function start() {
+            startTime = Date.now() - elapsedTime;
+            timerId = setInterval(updateTime, 1000);
+            startButton.disabled = true;
+            pauseButton.disabled = false;
+            resetButton.disabled = false;
+            lapButton.disabled = false;
+        }
+
+        function pause() {
+            clearInterval(timerId);
+            startButton.disabled = false;
+            pauseButton.disabled = true;
+            resetButton.disabled = false;
+            lapButton.disabled = true;
+        }
+
+        function reset() {
+            clearInterval(timerId);
+            elapsedTime = 0;
+            display.textContent = '00:00:00';
+            startButton.disabled = false;
+            pauseButton.disabled = true;
+            resetButton.disabled = true;
+            lapButton.disabled = true;
+            lapsDiv.innerHTML = '';
+            lapNumber = 1;
+        }
+
+        function lap() {
+            const lapTime = formatTime(elapsedTime);
+            const lapElement = document.createElement('div');
+            lapElement.classList.add('lap');
+            lapElement.textContent = `Lap ${lapNumber}: ${lapTime}`;
+            lapsDiv.appendChild(lapElement);
+            lapNumber++;
+        }
+
+        function updateTime() {
+            elapsedTime = Date.now() - startTime;
+            display.textContent = formatTime(elapsedTime);
+        }
+
+        function formatTime(time) {
+            const hours = Math.floor(time / 3600000);
+            const minutes = Math.floor((time % 3600000) / 60000);
+            const seconds = Math.floor((time % 60000) / 1000);
+            return `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
+        }
+
+        function padZero(number) {
+            return (number < 10 ? '0' : '') + number;
+        }
+    </script>
+</body>
+</html>
